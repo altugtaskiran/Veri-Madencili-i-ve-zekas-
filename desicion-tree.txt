@@ -1,0 +1,107 @@
+// Altuğ Taşkıran
+import pandas as pd
+data = {
+    "gelir": [32000, 45000, 58000, 62000, 29000, 70000, 52000, 81000, 47000, 90000,
+              61000, 38000, 55000, 73000, 34000, 68000, 49000, 76000, 43000, 64000,
+              57000, 36000, 85000, 51000],
+    "yas": [22, 25, 27, 30, 21, 35, 28, 40, 26, 45,
+            31, 24, 29, 38, 23, 34, 27, 39, 25, 33,
+            30, 22, 42, 28],
+    "mevcut_borc": [18000, 12000, 10000, 9000, 15000, 8000, 14000, 5000, 11000, 4000,
+                    9500, 17000, 13000, 6000, 16000, 7000, 12500, 5500, 14500, 8500,
+                    10000, 17500, 4500, 13500],
+    "kredi_puani": [480, 520, 610, 640, 450, 700, 590, 760, 560, 790,
+                    650, 500, 600, 720, 490, 690, 570, 740, 530, 660,
+                    620, 470, 780, 585],
+    "sonuc": [0, 0, 1, 1, 0, 1, 0, 1, 0, 1,
+              1, 0, 1, 1, 0, 1, 0, 1, 0, 1,
+              1, 0, 1, 0]
+}
+
+df = pd.DataFrame(data)
+print(df)
+
+Özellikler ve hedef değişkenin ayrılması
+
+Makine öğrenmesinde önce girişler ve hedef ayrılır.
+
+X → bağımsız değişkenler
+y → hedef değişken
+     
+
+X = df[["gelir", "yas", "mevcut_borc", "kredi_puani"]]
+y = df["sonuc"]
+     
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42
+)
+     
+
+from sklearn.tree import DecisionTreeClassifier
+
+dt_model = DecisionTreeClassifier(max_depth=3, random_state=42)
+dt_model.fit(X_train, y_train)
+
+dt_pred = dt_model.predict(X_test)
+     
+
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+print("=== Decision Tree ===")
+print("Accuracy:", accuracy_score(y_test, dt_pred))
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, dt_pred))
+print("Classification Report:")
+print(classification_report(y_test, dt_pred))
+
+yeni_musteri = [[60000, 32, 8500, 670]]
+tahmin = dt_model.predict(yeni_musteri)
+
+if tahmin[0] == 1:
+    print("Başvuru ONAYLANIR")
+else:
+    print("Başvuru REDDEDİLİR")
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn import tree
+     
+
+plt.figure(figsize=(16,10))
+
+tree.plot_tree(
+    dt_model,
+    feature_names=["gelir", "yas", "mevcut_borc", "kredi_puani"],
+    class_names=["RED", "ONAY"],
+    filled=True,
+    rounded=True,
+    fontsize=10
+)
+
+plt.title("Kredi Başvuru Karar Ağacı", fontsize=14)
+plt.show()
+     
+
+!pip install graphviz
+     
+from sklearn.tree import export_graphviz
+import graphviz
+
+dot_data = export_graphviz(
+    dt_model,
+    out_file=None,
+    feature_names=["gelir", "yas", "mevcut_borc", "kredi_puani"],
+    class_names=["RED", "ONAY"],
+    filled=True,
+    rounded=True,
+    special_characters=True
+)
+
+graph = graphviz.Source(dot_data)
+graph
+     
